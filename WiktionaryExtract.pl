@@ -73,7 +73,7 @@ while(defined(my $page = $pages->next))
     
     # If this title is a plural, add an inlink
     # Also note what the original was
-    if ($$text =~ /\{\{plural of\|(.*?)\|lang=en\}\}/)
+    if ($$text =~ /\{\{plural of\|(.*?)\|lang=en\}\}/ || $$text =~ /plural of\|(.*?)\}\}/)
     {
         my $singular = $1;
         $wiki{$lc_title}{'NumberInLinks'}++;
