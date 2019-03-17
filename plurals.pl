@@ -30,18 +30,23 @@ my %plurals;
 foreach my $orig (keys %final_rankings)
 {
     #print "$orig\n";
-    # Add in scores for plurals
     if ($g->{$orig}->{'PluralOf'})
     {
-        my $singular = $g->{$orig}->{'PluralOf'};
-        if ($plurals{$singular}) 
+        foreach my $singular (@{$g->{$orig}->{'PluralOf'}})
         {
-            #print $plurals{$singular} . "\n";
-            push(@{$plurals{$singular}},$orig);
-        }
-        else
-        {
-            @{$plurals{$singular}} = ($orig);
+            if ($plurals{$singular}) 
+            {
+                my $found = grep $_ eq $orig, @{$plurals{$singular}};
+                if ($found == 0)
+                {
+                    #print $plurals{$singular} . "\n";
+                    push(@{$plurals{$singular}},$orig);
+                }
+            }
+            else
+            {
+                @{$plurals{$singular}} = ($orig);
+            }
         }
     }
 }
