@@ -77,7 +77,24 @@ while(defined(my $page = $pages->next))
     {
         my $singular = $1;
         $wiki{$lc_title}{'NumberInLinks'}++;
-        $wiki{$lc_title}{'PluralOf'} = $singular;
+        push(@{$wiki{$lc_title}{'PluralOf'}},$singular);
+    }
+    
+    # If this is a noun, add the plurals that way
+    # Example: {{en-noun|deer|deers|pl2qual=nonstandard}}
+    if ($$text =~ /\{\{en-noun\|(.*?)\}\}/) 
+    {
+        my $plural_string = $1;
+        my @plurals = split(/\|/,$1);
+        foreach my $pl (@plurals)
+        {
+            if ($pl !~ /=/) 
+            {
+                my $rd_pl = remove_diacritics($pl);
+                my $lc_pl = lc $rd_pl;
+                push(@{$wiki{$lc_pl}{'PluralOf'}},$lc_title);
+            }
+        }
     }
 	
 	# Update inlinks counter for *other* (linked) articles
