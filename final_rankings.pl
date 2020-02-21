@@ -27,25 +27,25 @@ my %fields = ('NumberInLinks' => 70, 'PageLength' => 30);
 
 my %final_rankings = rank_wiki($g,\%fields);
 
-# Need to consolidate pages that end in parentheses
-foreach my $title (keys %final_rankings)
-{
-    # Only look for titles with parentheses at the end
-    if ($title =~ /^(.*) \([^\)]+\)$/)
-    {
-        my $new_title = $1;
-        if (!exists $final_rankings{$new_title} || $final_rankings{$new_title}{'Score'} < $final_rankings{$title}{'Score'})
-        {
-            $final_rankings{$new_title}{'Score'} = $final_rankings{$title}{'Score'};
-            #$final_rankings{$new_title}{'Blob'} = $final_rankings{$title}{'Blob'};
-            $final_rankings{$new_title}{'ToXword'} = ToXword($new_title);
-            $final_rankings{$new_title}{'OrigTitle'} = $title;
-            $final_rankings{$new_title}{'Name'} = $final_rankings{$title}{'Name'};
-        }
-        # We always want to delete the titles with parentheses at the end
-        delete($final_rankings{$title});
-    }
-} # end foreach title
+# # Need to consolidate pages that end in parentheses
+# foreach my $title (keys %final_rankings)
+# {
+    # # Only look for titles with parentheses at the end
+    # if ($title =~ /^(.*) \([^\)]+\)$/)
+    # {
+        # my $new_title = $1;
+        # if (!exists $final_rankings{$new_title} || $final_rankings{$new_title}{'Score'} < $final_rankings{$title}{'Score'})
+        # {
+            # $final_rankings{$new_title}{'Score'} = $final_rankings{$title}{'Score'};
+            # #$final_rankings{$new_title}{'Blob'} = $final_rankings{$title}{'Blob'};
+            # $final_rankings{$new_title}{'ToXword'} = ToXword($new_title);
+            # $final_rankings{$new_title}{'OrigTitle'} = $title;
+            # $final_rankings{$new_title}{'Name'} = $final_rankings{$title}{'Name'};
+        # }
+        # # We always want to delete the titles with parentheses at the end
+        # delete($final_rankings{$title});
+    # }
+# } # end foreach title
 
 my $t = localtime(time);
 my $monYr = $t->strftime("%b%Y");
