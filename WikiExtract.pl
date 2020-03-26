@@ -328,7 +328,7 @@ sub mw_summary
    my($text) = @_;
 
    # Remove comments and templates (maybe should handle templates..?)
-   $text =~ s/{{.*?}}//sg;
+   $text =~ s/\{\{.*?\}\}//sg;
    $text =~ s/<!--.*?-->//sg;
    # Don't want references..
    $text =~ s/<ref[^\/\>]+\/>//sg;
@@ -387,7 +387,7 @@ sub mw_summary
    if(defined $line) {
       $line =~ s/'''//g;
       $line =~ s/''//g;
-      $line =~ s/{{([^|]+)|(.*?)}}//g;
+      $line =~ s/\{\{([^|]+)|(.*?)\}\}//g;
       $line =~ s/\[\[(.*?)\]\]/_wp_link($1)/ge;
       $line =~ s/\[[^ ]+ (.*?)\]/$1/g;
 	  # I don't think it hurts to remove stuff in parens --ARB
