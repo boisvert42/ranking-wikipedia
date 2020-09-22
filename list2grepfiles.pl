@@ -18,6 +18,7 @@ while (my ($f,$g) = each(%files))
     {
         my ($orig,$score) = ($_ =~ /^(.*)@(.*)$/);
         last if $score < 30;
+        if ($orig =~ /(.*) \(.*$/) {$orig = $1;}
         (my $tx = $orig) =~ s/[^A-Za-z0-9]//g;
         print OUTFILE "$tx\%$orig\@$score\n";
     }
