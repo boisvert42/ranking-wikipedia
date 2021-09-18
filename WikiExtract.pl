@@ -10,6 +10,9 @@ use Data::Dumper;
 use Storable qw (nstore retrieve);
 use HTML::Entities;
 
+use JSON;
+use File::Slurp;
+
 # I get tons of utf-8 warnings running this.
 # The problem appears to be in the get_links subroutine.
 # I should probably fix it but I don't know how, so:
@@ -35,53 +38,55 @@ while(defined(my $page = $pages->next))
 {
 	#main namespace only
 	next unless $page->namespace eq '';
-	
+
 	# Exclude redirects
 	next if defined($page->redirect);
-	
+
 	my $t = remove_diacritics($page->title);
-	
+
 	# Make sure the title is "interesting"
 	next unless is_interesting_title($t);
-	
+
 	# Categories
 	my $c = $page->categories;
-	
+
 	# If we've gotten this far we can proceed
 	my $title = $page->title;
 	my $rd_title = remove_diacritics($title);
 	my $lc_title = lc $rd_title;
-	
+
 	$wiki{$lc_title}{'Original'} = $rd_title;
-	
+
+	$wiki{$lc_title}{'Categories'} = $c;
+
 	# Get stuff related to the article text
 	my $text = $page->text; # This is just a reference
-	
+
 	# Get the length of the articles
 	my $length = get_length($text);
-	
+
 	# HACK: Multiply page length by .8 if
 	# it's a city page
 	if (grep {/Cities/} @$c) {$length = 0.8 * $length;}
-	
+
 	# Determine if it's a name
-	if (grep {/^\d+s?( BC)? (births|deaths)$/i} @$c) 
+	if (grep {/^\d+s?( BC)? (births|deaths)$/i} @$c)
 	{
 		$wiki{$lc_title}{'Name'} = 1;
 	}
 	elsif (grep {/^Living people/i} @$c) {$wiki{$lc_title}{'Name'} = 1;}
 	else {$wiki{$lc_title}{'Name'} = 0;}
-	
+
 	$wiki{$lc_title}{'PageLength'} = $length;
-	
+
 	# Get a summary of the page
-	
+
 	###print "$title\n";
 	#my $summary = get_html_summary($text);
 	###my $summary = mw_summary($$text);
 	#$wiki{$lc_title}{'Summary'} = $summary;
 	#print "\n";
-	
+
 	# Update inlinks counter for *other* (linked) articles
 	my %links = get_links($text);
 	foreach my $ttl (keys %links)
@@ -89,10 +94,10 @@ while(defined(my $page = $pages->next))
 		# Note: this title is already in lowercase and without accents
 		$wiki{$ttl}{'NumberInLinks'}++;
 	}
-	
-	# print Dumper($page);
-	# die;
-	
+
+	#print Dumper($page);
+	#die;
+
 	#$ctr++;
 	#last if $ctr >= 35;
 }
@@ -108,6 +113,11 @@ my $t = localtime(time);
 my $monYr = $t->strftime("%b%Y");
 my $outFile = 'Wiki' . $monYr . '.storable';
 nstore \%wiki, $outFile;
+
+# Save JSON File
+my $jsonOutfile = 'Wiki' . $monYr . '.json';
+write_file($jsonOutfile, encode_json(\%wiki));
+
 
 #print Dumper(\%wiki);
 
@@ -140,14 +150,14 @@ sub is_interesting_title
 	my $t = shift;
 	$t = remove_diacritics($t);
 	# 3/8/2012 changed the "good" characters list
-	return ( 
+	return (
 	$t =~ /^[A-Za-z0-9\s\!\"\'\*\+\,\-\.\/\:\;\?\\\~\(\)]+$/  # Title contains no "bad" characters
 	&& length($t) <= 50  # Title isn't too long
 	&& $t !~ /^History/  # These history articles are uninteresting
 	&& $t !~ /^List of/  # These are the worst offenders
 	&& length(ToXword($t)) >= 3 ); # Title can't be too short
 }
-		
+
 
 # Return the list of links from a given page
 # Note: this returns a hash to avoid double counting
@@ -210,7 +220,7 @@ sub get_html_summary
 	# We need to remove the junk and make it HTML.
 	my ($txt) = @_;
 	my $text = $$txt;
-	
+
 	# Remove comments and templates (maybe should handle templates..?)
    $text =~ s/\{\{([^\{\}]|(?0))*\}\}//gs;
    $text =~ s/<!--.*?-->//sg;
@@ -265,9 +275,9 @@ sub get_html_summary
       next if length($line) < 100;
       last;
    }
-	
+
 	$line = wiki2html($line);
-	
+
 	if(defined $line) {
       $line =~ s/'''//g;
       $line =~ s/''//g;
@@ -275,24 +285,24 @@ sub get_html_summary
       # $line =~ s/\[\[(.*?)\]\]/_wp_link($1)/ge;
       # $line =~ s/\[[^ ]+ (.*?)\]/$1/g;
       #$line =~ s/<[^>]+>//g;
-      
+
 	  ##I don't think it hurts to remove stuff in parens --ARB
 	  $line =~ s/\(([^\(\)]|(?0))*\)//gs;
       ##$line = decode_entities($line);
 	  $line =~ s/[ ]+/ /g;
 	  $line =~ s/ \,/\,/g;
-	  
+
 	  # Remove links
 	  $line =~ s/<a [^>]+>//g;
 	  $line =~ s/<\/a>//g;
 	  # Remove <p> and </p>
 	  $line =~ s/<\/p>//g;
 	  $line =~ s/<p>//g;
-	  
+
     }
-	
+
 	$line =~ s/\s+$//s;
-	
+
 	# Truncate to 700 characters
 	if (length($line) >= 700)
 	{
@@ -300,7 +310,7 @@ sub get_html_summary
 		$line =~ s/\s+[^\s]+$//s;
 		$line .= ' ...' unless $line =~ /\.\s*$/s;
 	}
-	
+
 	return $line;
 }
 
@@ -381,7 +391,7 @@ sub mw_summary
       next if length($line) < 100;
       last;
    }
-   
+
    print "$line\n";
 
    if(defined $line) {
