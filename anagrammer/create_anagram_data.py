@@ -9,6 +9,7 @@ Make anagram database from Ranked Wiki data
 import pandas as pd
 import string
 import re
+import copy
 
 ALPHABET = string.ascii_lowercase
 
@@ -21,6 +22,7 @@ def compute_alphagram(s):
 
 #%%
 data = []
+words = set()
 # Read in our data
 with open(r'RankedWikiWikt.txt', 'r') as fid:
     for line in fid:
@@ -30,6 +32,12 @@ with open(r'RankedWikiWikt.txt', 'r') as fid:
         if ' (' in word:
             ix = word.index(' (')
             word = word[:ix]
+        # Don't add this if we already have it
+        word_lower = word.lower()
+        if word_lower in words:
+            continue
+        else:
+            words.add(word_lower)
         # Throw out anything with a number
         if re.search(r'\d', word) is not None:
             continue
@@ -54,15 +62,9 @@ for let in ALPHABET:
     letter_count_columns.append(f'{let}_ct')
 columns = ['word', 'alphagram', 'length'] + letter_count_columns + ['score']
 
-
-
-#%%
-NUM_ROWS = int(7 * 1e5)
-ctr = 1
 data = copy.copy(data_orig)
-while data:
-    data_tmp, data = data[:NUM_ROWS], data[NUM_ROWS:]
-    df = pd.DataFrame(data=data_tmp, columns=columns)
-    df.to_csv(f'anagrammer{ctr}.csv.zip', index=False, compression='zip', header=False)
-    ctr += 1
-
+df = pd.DataFrame(data=data, columns=columns)
+df = df.loc[df['score'] >= 30]
+print(len(df))
+df.to_csv('anagrammer.csv', index=False, header=False)
+#df.to_json('anagrammer.json')
