@@ -8,4 +8,6 @@ This collection of Perl scripts will create files of ranked WIkipedia pages alon
 3. Run perl WikiExtract.pl to create WikiMonYr.storable
 4. Run perl WiktionaryExtract.pl to create WiktionaryMonYr.storable
 5. Run perl final_rankings.pl WikiMonYr.storable to create RankedWiki.txt and FamousNames.txt
-6. Run perl wiktionary_final_rankings.pl WiktionaryMonYr.storable to create RankedWiktionary.txt
+6. Run perl wiktionary_final_rankings.pl WiktionaryMonYr.storable to create RankedWiktionaryNoInflections.txt
+7. Run python WiktionaryInflect.py to create RankedWiktionary.txt
+8. Run perl combine_wiki_wikt.pl to create RankedWikiWikt.txt
