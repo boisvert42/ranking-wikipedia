@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
 
-my $wiki_file = $ARGV[0];
-my $wikt_file = $ARGV[1];
+my $wiki_file = 'RankedWiki.txt';
+my $wikt_file = 'RankedWiktionary.txt';
 my @files = ($wiki_file, $wikt_file);
 
 my %dict;

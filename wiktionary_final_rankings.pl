@@ -40,7 +40,7 @@ my %final_rankings = rank_wiki($g,\%fields);
 my $norvig = 'google-books-common-words.txt';
 my %nvg;
 my @vals;
-if (-e $norvig) 
+if (-e $norvig)
 {
     open NVG, $norvig or die "Couldn't find $norvig";
     while (<NVG>)
@@ -52,7 +52,7 @@ if (-e $norvig)
     }
     close NVG;
 }
-else 
+else
 {
     warn "Norvig file not found -- can be downloaded from http://norvig.com/google-books-common-words.txt";
 }
@@ -94,7 +94,7 @@ my $tt = localtime(time);
 my $monYr = $tt->strftime("%b%Y");
 
 ## Write out the RankedWiktionary.txt file
-my $outText = 'RankedWiktionary' . $monYr . '.txt';
+my $outText = 'RankedWiktionaryNoInflections.txt';
 open RW, ">$outText" or die $!;
 foreach (sort { ($final_rankings{$b}{'Score'} <=> $final_rankings{$a}{'Score'}) || ($a cmp $b) } keys %final_rankings)
 {
@@ -135,7 +135,7 @@ sub rank_wiki
     }
     return %ranked;
 }
-                       
+
 sub get_score
 {
     my $g = shift;

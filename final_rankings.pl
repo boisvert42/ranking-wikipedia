@@ -51,7 +51,7 @@ my $t = localtime(time);
 my $monYr = $t->strftime("%b%Y");
 
 # Write RankedWiki.txt and FamousNames.txt
-my $outText = 'RankedWiki' . $monYr . '.txt';
+my $outText = 'RankedWiki.txt';
 open NAMES, '>FamousNames.txt' or die $!;
 open RW, ">$outText" or die $!;
 foreach (sort { ($final_rankings{$b}{'Score'} <=> $final_rankings{$a}{'Score'}) || ($a cmp $b) } keys %final_rankings)
