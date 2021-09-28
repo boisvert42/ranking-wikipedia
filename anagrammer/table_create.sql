@@ -1,6 +1,6 @@
 CREATE TABLE `anagrammer` (
-    `word` VARCHAR(100) NOT NULL
-    ,`alphagram` VARCHAR(100) NOT NULL
+    `word` VARCHAR(50) NOT NULL
+    ,`alphagram` VARCHAR(50) NOT NULL
     ,`length` INT NOT NULL
     ,`a_ct` INT NOT NULL
     ,`b_ct` INT NOT NULL
