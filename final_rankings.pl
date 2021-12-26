@@ -8,6 +8,7 @@ use Unicode::Normalize;
 use Time::Piece;
 
 use JSON;
+use File::Slurp;
 
 use Data::Dumper;
 
