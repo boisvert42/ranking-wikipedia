@@ -9,8 +9,8 @@ use Time::Piece;
 use Data::Dumper;
 use Storable qw (nstore retrieve);
 
-import JSON;
-
+use JSON;
+use File::Slurp;
 # I get tons of utf-8 warnings running this.
 # The problem appears to be in the get_links subroutine.
 # I should probably fix it but I don't know how, so:
@@ -126,7 +126,7 @@ while(defined(my $page = $pages->next))
 nstore \%wiki, $outfile;
 
 # Save JSON File
-my $jsonOutfile = 'Wiktionary' . $monYr . '.json';
+my $jsonOutfile = 'Wiktionary' . $t->strftime("%b%Y") . '.json';
 write_file($jsonOutfile, encode_json(\%wiki));
 
 ######
