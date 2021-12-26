@@ -10,3 +10,4 @@ RankedWikiJun2020.txt
 WikiSep2021.json
 *.txt
 anagrammer/insert_data.sql
+*.json
