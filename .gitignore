@@ -7,7 +7,7 @@ google-books-common-words.txt
 *.7z
 RankedWiktionary.txt
 RankedWikiJun2020.txt
-WikiSep2021.json
 *.txt
 anagrammer/insert_data.sql
 *.json
+*.bz2
