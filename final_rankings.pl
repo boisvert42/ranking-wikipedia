@@ -7,6 +7,8 @@ use Statistics::Descriptive;
 use Unicode::Normalize;
 use Time::Piece;
 
+use JSON;
+
 use Data::Dumper;
 
 ###########################################################################
@@ -67,6 +69,10 @@ close NAMES;
 
 my $outFile = 'RankedWiki' . $monYr . '.storable';
 nstore \%final_rankings, $outFile;
+
+# Save a JSON file as well
+my $jsonOutfile = 'RankedWiki' . $monYr . '.json';
+write_file($jsonOutfile, encode_json(\%final_rankings));
 
 ######
 # SUBS
