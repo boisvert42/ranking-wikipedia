@@ -6,6 +6,9 @@ use Storable qw (nstore retrieve);
 use Statistics::Descriptive;
 use Time::Piece;
 
+use JSON;
+use File::Slurp;
+
 use Data::Dumper;
 use warnings;
 
@@ -103,6 +106,10 @@ foreach (sort { ($final_rankings{$b}{'Score'} <=> $final_rankings{$a}{'Score'}) 
 close RW;
 
 nstore \%final_rankings, $outfile;
+
+# Save a JSON file as well
+my $jsonOutfile = 'RankedWiktionary' . $monYr . '.json';
+write_file($jsonOutfile, encode_json(\%final_rankings));
 
 ######
 # SUBS
