@@ -9,6 +9,8 @@ use Time::Piece;
 use Data::Dumper;
 use Storable qw (nstore retrieve);
 
+import JSON;
+
 # I get tons of utf-8 warnings running this.
 # The problem appears to be in the get_links subroutine.
 # I should probably fix it but I don't know how, so:
@@ -38,39 +40,39 @@ while(defined(my $page = $pages->next))
 {
 	#main namespace only
 	next unless $page->namespace eq '';
-	
+
 	# Weed out anything unimportant
 	next if defined($page->redirect);
 
 	# If we've gotten this far we can proceed
 	my $title = $page->title;
-	
+
 	# TEMP
 	#next unless $title eq 'color';
-	
+
 	# Make sure the title is "interesting"
 	# This includes making sure the word is only lowercase
 	next unless is_interesting_title($title);
-	
+
 	# NOTE: the title should be all lowercase with no diacritics anyway
 	# but it doesn't hurt to leave this in.
 	my $rd_title = remove_diacritics($title);
 	my $lc_title = lc $rd_title;
-	
+
 	$wiki{$lc_title}{'Original'} = $rd_title;
-	
+
 	# Get stuff related to the article text
 	my $text = $page->text; # This is just a reference
-	
+
 	# Get the length of the articles
 	my $length = get_length($text);
-	
+
 	$wiki{$lc_title}{'PageLength'} = $length;
-	
+
 	# Get a summary of the page
 	my $summary = get_html_summary($text);
 	$wiki{$lc_title}{'Summary'} = $summary;
-    
+
     # If this title is a plural, add an inlink
     # Also note what the original was
     if ($$text =~ /\{\{plural of\|(.*?)\|lang=en\}\}/ || $$text =~ /plural of\|(.*?)\}\}/)
@@ -79,16 +81,16 @@ while(defined(my $page = $pages->next))
         $wiki{$lc_title}{'NumberInLinks'}++;
         push(@{$wiki{$lc_title}{'PluralOf'}},$singular);
     }
-    
+
     # If this is a noun, add the plurals that way
     # Example: {{en-noun|deer|deers|pl2qual=nonstandard}}
-    if ($$text =~ /\{\{en-noun\|(.*?)\}\}/) 
+    if ($$text =~ /\{\{en-noun\|(.*?)\}\}/)
     {
         my $plural_string = $1;
         my @plurals = split(/\|/,$1);
         foreach my $pl (@plurals)
         {
-            if ($pl !~ /=/) 
+            if ($pl !~ /=/)
             {
                 my $rd_pl = remove_diacritics($pl);
                 my $lc_pl = lc $rd_pl;
@@ -96,7 +98,7 @@ while(defined(my $page = $pages->next))
             }
         }
     }
-	
+
 	# Update inlinks counter for *other* (linked) articles
 	my %links = get_links($text);
 	foreach my $ttl (keys %links)
@@ -104,11 +106,11 @@ while(defined(my $page = $pages->next))
 		# Note: this title is already in lowercase and without accents
 		$wiki{$ttl}{'NumberInLinks'}++;
 	}
-	
+
 	#print $wiki{$lc_title}{'Summary'};
 	#print Dumper(\%wiki);
 	#die;
-	
+
 }
 
 # Remove any hash elements that are just inlinks
@@ -122,6 +124,10 @@ while(defined(my $page = $pages->next))
 
 # Hooray!  Send this to a storable so another perl script can process it.
 nstore \%wiki, $outfile;
+
+# Save JSON File
+my $jsonOutfile = 'Wiktionary' . $monYr . '.json';
+write_file($jsonOutfile, encode_json(\%wiki));
 
 ######
 # SUBS
@@ -149,10 +155,10 @@ sub remove_diacritics
 sub is_interesting_title
 {
 	my $t = shift;
-	
+
 	# 3/8/2012 changed the "good" characters list
-	return 
-	( 
+	return
+	(
 	$t =~ /^[a-z0-9\s]+$/  # Title contains no "bad" characters
 	&& length($t) <= 50  # Title isn't too long
 	&& length(ToXword($t)) >= 3 # Title can't be too short
@@ -164,7 +170,7 @@ sub get_plurals
 	# Get plurals of a word
 	my ($txt,$title) = @_;
 	my $text = $$txt;
-	
+
 	if ($text =~ /\{\{en-noun\|(.*?)\}\}/)
 	{
 		my $list = $1;
@@ -186,7 +192,7 @@ sub get_plurals
         return $title . 's';
     }
 }
-		
+
 
 # Return the list of links from a given page
 # Note: this returns a hash to avoid double counting
@@ -253,31 +259,31 @@ sub get_html_summary
 	$text =~ s/\[\[[^\]]+\:([^\[\]]|(\[\[[^\]]+\]\]))*\]\]//gs;
 	# Remove diacritics
 	$text = remove_diacritics($text);
-	
+
 	# Remove any lines starting with #*
 	$text =~ s/\#\*[^\n]*\n//gs;
 	# Remove any essentially empty definitions
 	$text =~ s/\#[\W]*\n//gs;
-	
+
 	# Prune this a bit
 	# Add a fake language to the end
 	$text = "$text\n==FakeLang==\n";
-	
+
 	# Only keep the "English" part
 	# If there isn't an "English" part we skip
 	if ($text =~ /==English==(.*?)\n==[^=]+==\n/s)
 	{
 		$text = $1;
 	} else {return '';}
-	
+
 	# Add a fake part of speech to the end
 	$text = "$text\n===FakePOS===\n";
-	
+
 	# Grab certain parts of speech:
 	# Noun, Verb, Adjective, Adverb, Interjection
 	# Forget anything else
 	my @pos = qw(Noun Verb Adjective Adverb Interjection);
-	
+
 	my $finaltext = '';
 	foreach my $p (@pos)
 	{
@@ -291,15 +297,15 @@ sub get_html_summary
 			$ctr++;
 		}
 	}
-	
+
 	#print "$finaltext\n";
-	
+
 	# Convert to HTML
 	my $html = wiki2html($finaltext);
 	# Change the links
 	# <a href='classical%20Hollywood%20cinema'>classical Hollywood cinema</a>
 	$html =~ s/<a href='([^']+)'>/"<a href='" . ToLink($1) . "'>"/eg;
-	
+
 	# Replace \x{NUM} with &#NUM;
 	$html =~ s/([^[:ascii:]])/'&#'.ord($1).';'/ge;
 
