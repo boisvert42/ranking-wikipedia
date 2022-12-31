@@ -12,7 +12,7 @@ import itertools
 INFLECTED_PENALTY = 5
 
 rw = dict()
-with open('RankedWiktionaryNoInflections.txt', 'r') as fid:
+with open('RankedWiktionaryNoInflections.txt', 'r', encoding='utf-8') as fid:
 	for line in fid:
 		line = line.strip()
 		word, score = line.split('@')
@@ -33,6 +33,6 @@ for word, score in rw.items():
 rw.update(rw2)
 
 # Write the list
-with open('RankedWiktionary.txt', 'a') as fid:
+with open('RankedWiktionary.txt', 'w', encoding='utf-8') as fid:
 	for word, score in rw.items():
 		fid.write(f'{word}@{score}\n')
