@@ -32,6 +32,7 @@ my %wiki;
 my $t = localtime;
 my $outfile = "Wiktionary" . $t->strftime("%b%Y") . ".storable";
 
+# Pull this file from https://dumps.wikimedia.org/enwiktionary/latest/enwiktionary-latest-pages-articles.xml.bz2
 my $xmlfile = "enwiktionary-latest-pages-articles.xml";
 my $pages = Parse::MediaWikiDump::Pages->new($xmlfile);
 

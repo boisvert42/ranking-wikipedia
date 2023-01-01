@@ -29,6 +29,7 @@ no warnings 'utf8';
 ###########################################################################
 my %wiki;
 
+# Pull this file from https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2
 my $xmlfile = "enwiki-latest-pages-articles.xml";
 my $pages = Parse::MediaWikiDump::Pages->new($xmlfile);
 
