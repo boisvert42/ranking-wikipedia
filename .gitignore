@@ -11,3 +11,4 @@ RankedWikiJun2020.txt
 anagrammer/insert_data.sql
 *.json
 *.bz2
+/enwiki_dumps
